@@ -1,87 +1,13 @@
+mod tokenizer;
+
+use crate::tokenizer::*;
+
 use std::env;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::prelude::*;
 
-enum TokenType {
-    TStrLit=0,
-    TPrint=1,
-    TSemi=2,
-}
 
-struct Token {
-    ttype: TokenType,
-    value: Option<String>
-}
-
-fn isalnum(character: u8) -> bool {
-    if 48<=character && character <=57||65<=character && character <=90||97<=character && character <=122 {
-        return true;
-    }
-    false
-}
-
-fn tokenize(src: &str) -> Vec<Token>{
-    let mut tokens: Vec<Token> = vec![];
-    let src_arr: Vec<_> = src.lines().collect();
-    let mut buf: Vec<u8> = vec![];
-    let long = src_arr.iter().fold(src_arr[0], |acc, &item| {
-        if item.len() > acc.len() {
-            item
-        } else {
-            acc
-        }
-    });
-    for i in 0..long.len() {
-        let mut j = 0;
-        while j < src_arr.len() {
-            let mut c: u8 = src_arr[j].as_bytes()[i];
-            if isalnum(c) {
-                while isalnum(c) {
-                    buf.push(c);
-                    j += 1;
-                    c = src_arr[j].as_bytes()[i];
-                }   
-                if buf == b"print" {
-                tokens.push(Token {
-                    ttype: TokenType::TPrint,
-                    value: None,
-                });
-                }
-                continue;
-            }
-            if c == b'"'{
-                j += 1;
-                c = src_arr[j].as_bytes()[i];
-                loop {
-                    buf.push(c);
-                    j += 1;
-                    c = src_arr[j].as_bytes()[i];
-                    if c == b'"' {
-                        j += 1;
-                        break;
-                    }
-                }   
-                let string_value = String::from_utf8(buf.clone()).unwrap();
-                tokens.push(Token {
-                    ttype: TokenType::TStrLit,
-                    value: Some(string_value)
-                });
-                buf.clear();
-                continue;
-            }
-            if c == b';' {
-                tokens.push(Token {
-                    ttype: TokenType::TSemi,
-                    value: None
-                });
-                break;
-            }
-            j += 1;
-        } 
-    }
-    return tokens;
-}
 
 fn tokens_to_py(tokens: Vec<Token>) -> String {
     let mut code: Vec<String> = vec![

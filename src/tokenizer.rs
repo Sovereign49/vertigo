@@ -1,7 +1,18 @@
 pub enum TokenType {
-    TStrLit=0,
-    TPrint=1,
-    TSemi=2,
+    TStrLit,
+    TNumLit,
+    TAsAscii,
+    TPrint,
+    TLoop,
+    TEnd,
+    TSemi,
+    TAdd,
+    TSub,
+    TMul,
+    TDiv,
+    TDup,
+    TFlip,
+    TPop,
 }
 
 pub struct Token {
@@ -10,10 +21,15 @@ pub struct Token {
 }
 
 fn isalnum(character: u8) -> bool {
-    if 48<=character && character <=57||65<=character && character <=90||97<=character && character <=122 {
-        return true;
-    }
-    false
+    return 48<=character && character <=57||65<=character && character <=90||97<=character && character <=122;
+}
+
+fn isalpha(character: u8) -> bool {
+    return 65<=character && character <=90||97<=character && character <=122;
+}
+
+fn isnumeric(character: u8) -> bool {
+    return 48<=character && character <=57 || character == 46; 
 }
 
 fn get_len<T>(arr: &Vec<Vec<T>>) -> usize {
@@ -45,7 +61,7 @@ pub fn tokenize(src: &str) -> Vec<Token>{
         let mut j = 0;
         while j < src_arr.len() {
             let mut c: u8 = src_arr[j][i];
-            if isalnum(c) {
+            if isalpha(c) {
                 while isalnum(c) {
                     buf.push(c);
                     j += 1;
@@ -57,6 +73,67 @@ pub fn tokenize(src: &str) -> Vec<Token>{
                     value: None,
                 });
                 }
+                else if buf == b"loop" {
+                tokens.push(Token {
+                    ttype: TokenType::TLoop,
+                    value: None,
+                });
+                }
+                else if buf == b"end" {
+                tokens.push(Token {
+                    ttype: TokenType::TEnd,
+                    value: None,
+                });
+                }
+                else if buf == b"end" {
+                tokens.push(Token {
+                    ttype: TokenType::TEnd,
+                    value: None,
+                });
+                }
+                else if buf == b"ascii" {
+                tokens.push(Token {
+                    ttype: TokenType::TAsAscii,
+                    value: None,
+                });
+                }
+                else if buf == b"dup" {
+                tokens.push(Token {
+                    ttype: TokenType::TDup,
+                    value: None,
+                });
+                }
+                else if buf == b"flip" {
+                tokens.push(Token {
+                    ttype: TokenType::TFlip,
+                    value: None,
+                });
+                }
+                else if buf == b"pop" {
+                tokens.push(Token {
+                    ttype: TokenType::TPop,
+                    value: None,
+                });
+                }
+                else {
+                    println!("invalid keyword");
+                    std::process::exit(1);
+                }
+                buf.clear();
+                continue;
+            }
+            if isnumeric(c) {
+                while isnumeric(c) {
+                    buf.push(c);
+                    j += 1;
+                    c = src_arr[j][i];
+                }   
+                let string_value = String::from_utf8(buf.clone()).unwrap();
+                tokens.push(Token {
+                    ttype: TokenType::TNumLit,
+                    value: Some(string_value),
+                });
+                buf.clear();
                 continue;
             }
             if c == b'"'{
@@ -79,6 +156,34 @@ pub fn tokenize(src: &str) -> Vec<Token>{
             if c == b';' {
                 tokens.push(Token {
                     ttype: TokenType::TSemi,
+                    value: None
+                });
+                break;
+            }
+            if c == b'+' {
+                tokens.push(Token {
+                    ttype: TokenType::TAdd,
+                    value: None
+                });
+                break;
+            }
+            if c == b'-' {
+                tokens.push(Token {
+                    ttype: TokenType::TSub,
+                    value: None
+                });
+                break;
+            }
+            if c == b'*' {
+                tokens.push(Token {
+                    ttype: TokenType::TMul,
+                    value: None
+                });
+                break;
+            }
+            if c == b'/' {
+                tokens.push(Token {
+                    ttype: TokenType::TDiv,
                     value: None
                 });
                 break;

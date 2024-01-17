@@ -99,6 +99,7 @@ fn tokens_to_py(tokens: Vec<Token>) -> String {
                     TokenType::TEnd => {
                         let mut last = loop_stack.pop().unwrap();
                         last.push("if stack[-1] == 0:".to_string());
+                        last.push("\tstack.pop()".to_string());
                         last.push("\tbreak".to_string());
                         let mut loop_code: Vec<String> = vec![];
                         for line in last {

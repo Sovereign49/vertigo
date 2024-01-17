@@ -21,8 +21,8 @@ while True:
 		stack[-1] = tmp
 		stack.append(stack.pop()-stack.pop())
 		if stack[-1] == 0:
+			stack.pop()
 			break
-	stack.pop()
 	stack.append(1)
 	stack.append(stack.pop()+stack.pop())
 	dup = stack.pop()
@@ -31,4 +31,5 @@ while True:
 	stack.append(5)
 	stack.append(stack.pop()-stack.pop())
 	if stack[-1] == 0:
+		stack.pop()
 		break

@@ -1,16 +1,7 @@
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
-
-enum StackItem {
-    TStr(String),
-    TNum(f32),
-}
-
-enum OpCodes {
-    OpPush = 0,
-    OpPrint = 1,
-}
+use vertigo::{OpCode, StackItem};
 
 fn main() {
     if env::args().len() < 2 {
@@ -30,9 +21,11 @@ fn main() {
     }
     let mut stack: Vec<StackItem> = vec![];
     let mut i = 1;
+    
     while i < bytes.len() {
-        match bytes[i] {
-            0x00 => {
+        let operation = OpCode::try_from(bytes[i]).unwrap();
+        match operation {
+            OpCode::OpPush => {
                 i+=1;
                 match bytes[i] {
                     0x00 => (),
@@ -57,7 +50,7 @@ fn main() {
                     _ => {println!("Error Invalid type");std::process::exit(1);}
                 }
             },
-            0x01 => {
+            OpCode::OpPrint => {
                 let item = stack.pop().unwrap();
                 if let StackItem::TStr(s) = item {
                     println!("{}", s);    
@@ -66,8 +59,8 @@ fn main() {
                     println!("{}", s);    
                 }
             },
-            0x02 => { i+=1;std::process::exit(bytes[i].into());},
-            _ => {println!("Error Invalid OpCode");std::process::exit(1);}
+            OpCode::OpExit => { i+=1;std::process::exit(bytes[i].into());},
+            OpCode::OperationCount => assert!(false, "You shouldn't be here"),
         }
         i+=1;
     }

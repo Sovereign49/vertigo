@@ -1,4 +1,5 @@
 use crate::tokenizer::*;
+use vertigo::{OpCode, StackItem};
 
 pub fn tokens_to_py(tokens: Vec<Token>) -> Vec<u8> {
     enum State {
@@ -165,34 +166,25 @@ pub fn tokens_to_py(tokens: Vec<Token>) -> Vec<u8> {
 pub fn tokens_to_vm(tokens: Vec<Token>) -> Vec<u8> {
     let mut code: Vec<u8> = vec![];
     code.push(0x69);
-    enum GenericType {
-        TStr(String),
-        TNum(f32)
-    }
-    enum OpCodes {
-        OpPush=0x00,
-        OpPrint=0x01,
-        OpExit=0x02
-    }
-    let mut stack: Vec<GenericType> = vec![];
+    let mut stack: Vec<StackItem> = vec![];
     for token in tokens {
         match token.ttype {
-            TokenType::TStrLit => stack.push(GenericType::TStr(token.value.unwrap())),
-            TokenType::TNumLit => stack.push(GenericType::TNum(token.value.unwrap().parse().unwrap())),
+            TokenType::TStrLit => stack.push(StackItem::TStr(token.value.unwrap())),
+            TokenType::TNumLit => stack.push(StackItem::TNum(token.value.unwrap().parse().unwrap())),
             TokenType::TSemi => {
                 while stack.len() > 0 {
                     let item = stack.pop().unwrap();
                     match item {
-                        GenericType::TNum(x) => {
-                            code.push(OpCodes::OpPush as u8);
+                        StackItem::TNum(x) => {
+                            code.push(OpCode::OpPush as u8);
                             code.push(0x01);
                             let bytes = x.to_le_bytes();
                             for byte in bytes {
                                 code.push(byte);
                             }
                         },
-                        GenericType::TStr(x) => {
-                            code.push(OpCodes::OpPush as u8);
+                        StackItem::TStr(x) => {
+                            code.push(OpCode::OpPush as u8);
                             code.push(0x02);
                             let bytes = x.as_bytes();
                             code.push(bytes.len() as u8);
@@ -203,11 +195,12 @@ pub fn tokens_to_vm(tokens: Vec<Token>) -> Vec<u8> {
                     }
                 }
             },
-            TokenType::TPrint => code.push(OpCodes::OpPrint as u8),
+            TokenType::TPrint => code.push(OpCode::OpPrint as u8),
+            TokenType::TAdd => code.push(OpCode::OpPrint as u8),
             _ => todo!("Not implemented")
         }
     }
-    code.push(OpCodes::OpExit as u8);
+    code.push(OpCode::OpExit as u8);
     code.push(0x00);
 
     return code;

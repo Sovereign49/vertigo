@@ -196,7 +196,10 @@ pub fn tokens_to_vm(tokens: Vec<Token>) -> Vec<u8> {
                 }
             },
             TokenType::TPrint => code.push(OpCode::OpPrint as u8),
-            TokenType::TAdd => code.push(OpCode::OpPrint as u8),
+            TokenType::TAdd => code.push(OpCode::OpAdd as u8),
+            TokenType::TSub => code.push(OpCode::OpSub as u8),
+            TokenType::TMul => code.push(OpCode::OpMul as u8),
+            TokenType::TDiv => code.push(OpCode::OpDiv as u8),
             _ => todo!("Not implemented")
         }
     }

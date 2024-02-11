@@ -31,9 +31,9 @@ fn main() {
                     0x00 => (),
                     0x01 => {
                         let mut f32_arr: [u8;4] = [0,0,0,0];
-                        for _j in 0..4 {
+                        for j in 0..4 {
                             i+=1;
-                            f32_arr[i] = bytes[i];
+                            f32_arr[j] = bytes[i];
                         } 
                         stack.push(StackItem::TNum(f32::from_le_bytes(f32_arr)));
                     },
@@ -61,6 +61,66 @@ fn main() {
             },
             OpCode::OpExit => { i+=1;std::process::exit(bytes[i].into());},
             OpCode::OperationCount => assert!(false, "You shouldn't be here"),
+            OpCode::OpAdd => { 
+                let item1 = stack.pop().unwrap();
+                let item2 = stack.pop().unwrap();
+                if let StackItem::TNum(n1) = item1 {
+                    if let StackItem::TNum(n2) = item2 {
+                        stack.push(StackItem::TNum(n1 + n2));
+                    }
+                    else {
+                        panic!("error adding a string");
+                    }
+                }
+                else {
+                    panic!("error adding a string");
+                }
+            },
+            OpCode::OpSub => { 
+                let item1 = stack.pop().unwrap();
+                let item2 = stack.pop().unwrap();
+                if let StackItem::TNum(n1) = item1 {
+                    if let StackItem::TNum(n2) = item2 {
+                        stack.push(StackItem::TNum(n1 - n2));
+                    }
+                    else {
+                        panic!("error adding a string");
+                    }
+                }
+                else {
+                    panic!("error adding a string");
+                }
+            },
+            OpCode::OpMul => { 
+                let item1 = stack.pop().unwrap();
+                let item2 = stack.pop().unwrap();
+                if let StackItem::TNum(n1) = item1 {
+                    if let StackItem::TNum(n2) = item2 {
+                        stack.push(StackItem::TNum(n1 * n2));
+                    }
+                    else {
+                        panic!("error adding a string");
+                    }
+                }
+                else {
+                    panic!("error adding a string");
+                }
+            },
+            OpCode::OpDiv => { 
+                let item1 = stack.pop().unwrap();
+                let item2 = stack.pop().unwrap();
+                if let StackItem::TNum(n1) = item1 {
+                    if let StackItem::TNum(n2) = item2 {
+                        stack.push(StackItem::TNum(n1 / n2));
+                    }
+                    else {
+                        panic!("error adding a string");
+                    }
+                }
+                else {
+                    panic!("error adding a string");
+                }
+            },
         }
         i+=1;
     }

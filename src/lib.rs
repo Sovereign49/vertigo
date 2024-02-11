@@ -8,6 +8,10 @@ pub enum OpCode {
     OpPush,
     OpPrint,
     OpExit,
+    OpAdd,
+    OpSub,
+    OpMul,
+    OpDiv,
     OperationCount
 }
 

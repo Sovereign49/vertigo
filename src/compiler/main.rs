@@ -1,14 +1,13 @@
-mod tokenizer;
 mod compilation;
+mod tokenizer;
 
-use crate::tokenizer::*;
 use crate::compilation::*;
+use crate::tokenizer::*;
 
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
-
 
 fn main() {
     if env::args().len() < 3 {
@@ -23,13 +22,8 @@ fn main() {
     let mut contents = String::new();
     let _ = buf_reader.read_to_string(&mut contents);
     let tokens = tokenize(&contents);
-    let mut compiled_code: Vec<u8> = vec![];
-    if argv.len() > 3 {
-        compiled_code = tokens_to_vm(tokens);
-    }
-    else {
-        compiled_code = tokens_to_py(tokens);
-    }
+    let compiled_code: Vec<u8>;
+    compiled_code = tokens_to_vm(tokens);
     let mut output_file = File::create(&argv[2]).expect("Failed to open output file");
     let _ = output_file.write_all(&compiled_code);
 }

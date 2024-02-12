@@ -20,108 +20,130 @@ fn main() {
         std::process::exit(1);
     }
     let mut stack: Vec<StackItem> = vec![];
+    let mut loop_stack: Vec<usize> = vec![];
     let mut i = 1;
-    
+
     while i < bytes.len() {
         let operation = OpCode::try_from(bytes[i]).unwrap();
         match operation {
             OpCode::OpPush => {
-                i+=1;
+                i += 1;
                 match bytes[i] {
                     0x00 => (),
                     0x01 => {
-                        let mut f32_arr: [u8;4] = [0,0,0,0];
+                        let mut f32_arr: [u8; 4] = [0, 0, 0, 0];
                         for j in 0..4 {
-                            i+=1;
+                            i += 1;
                             f32_arr[j] = bytes[i];
-                        } 
+                        }
                         stack.push(StackItem::TNum(f32::from_le_bytes(f32_arr)));
-                    },
+                    }
                     0x02 => {
-                        i+=1;
+                        i += 1;
                         let len = bytes[i];
                         let mut str_arr: Vec<u8> = vec![];
                         for _j in 0..len {
-                            i+=1;
+                            i += 1;
                             str_arr.push(bytes[i]);
-                        } 
+                        }
                         stack.push(StackItem::TStr(String::from_utf8(str_arr).unwrap()));
-                    },
-                    _ => {println!("Error Invalid type");std::process::exit(1);}
+                    }
+                    _ => {
+                        println!("Error Invalid type");
+                        std::process::exit(1);
+                    }
                 }
-            },
+            }
             OpCode::OpPrint => {
                 let item = stack.pop().unwrap();
                 if let StackItem::TStr(s) = item {
-                    println!("{}", s);    
+                    println!("{}", s);
+                } else if let StackItem::TNum(s) = item {
+                    println!("{}", s);
                 }
-                else if let StackItem::TNum(s) = item {
-                    println!("{}", s);    
-                }
-            },
-            OpCode::OpExit => { i+=1;std::process::exit(bytes[i].into());},
+            }
+            OpCode::OpExit => {
+                i += 1;
+                std::process::exit(bytes[i].into());
+            }
             OpCode::OperationCount => assert!(false, "You shouldn't be here"),
-            OpCode::OpAdd => { 
+            OpCode::OpAdd => {
                 let item1 = stack.pop().unwrap();
                 let item2 = stack.pop().unwrap();
                 if let StackItem::TNum(n1) = item1 {
                     if let StackItem::TNum(n2) = item2 {
                         stack.push(StackItem::TNum(n1 + n2));
-                    }
-                    else {
+                    } else {
                         panic!("error adding a string");
                     }
-                }
-                else {
+                } else {
                     panic!("error adding a string");
                 }
-            },
-            OpCode::OpSub => { 
+            }
+            OpCode::OpSub => {
                 let item1 = stack.pop().unwrap();
                 let item2 = stack.pop().unwrap();
                 if let StackItem::TNum(n1) = item1 {
                     if let StackItem::TNum(n2) = item2 {
                         stack.push(StackItem::TNum(n1 - n2));
-                    }
-                    else {
+                    } else {
                         panic!("error adding a string");
                     }
-                }
-                else {
+                } else {
                     panic!("error adding a string");
                 }
-            },
-            OpCode::OpMul => { 
+            }
+            OpCode::OpMul => {
                 let item1 = stack.pop().unwrap();
                 let item2 = stack.pop().unwrap();
                 if let StackItem::TNum(n1) = item1 {
                     if let StackItem::TNum(n2) = item2 {
                         stack.push(StackItem::TNum(n1 * n2));
-                    }
-                    else {
+                    } else {
                         panic!("error adding a string");
                     }
-                }
-                else {
+                } else {
                     panic!("error adding a string");
                 }
-            },
-            OpCode::OpDiv => { 
+            }
+            OpCode::OpDiv => {
                 let item1 = stack.pop().unwrap();
                 let item2 = stack.pop().unwrap();
                 if let StackItem::TNum(n1) = item1 {
                     if let StackItem::TNum(n2) = item2 {
                         stack.push(StackItem::TNum(n1 / n2));
-                    }
-                    else {
+                    } else {
                         panic!("error adding a string");
                     }
-                }
-                else {
+                } else {
                     panic!("error adding a string");
                 }
-            },
+            }
+            OpCode::OpLoop => {
+                loop_stack.push(i);
+            }
+            OpCode::OpPop => {
+                let _ = stack.pop().unwrap();
+            }
+            OpCode::OpEnd => {
+                let val = stack.pop().unwrap();
+                if val != StackItem::TNum(0.0) {
+                    i = *loop_stack.last().unwrap();
+                    stack.push(val);
+                }
+            }
+            OpCode::OpDup => {
+                stack.push(stack.last().unwrap().clone());
+            }
+            OpCode::OpFlip => {
+                let item1 = stack.pop().unwrap();
+                let item2 = stack.pop().unwrap();
+                stack.push(item1);
+                stack.push(item2);
+            }
+            #[allow(unreachable_patterns)]
+            _ => todo!("Not Implemented"),
         }
-        i+=1;
+        i += 1;
     }
 }

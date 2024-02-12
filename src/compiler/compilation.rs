@@ -170,7 +170,9 @@ pub fn tokens_to_vm(tokens: Vec<Token>) -> Vec<u8> {
     for token in tokens {
         match token.ttype {
             TokenType::TStrLit => stack.push(StackItem::TStr(token.value.unwrap())),
-            TokenType::TNumLit => stack.push(StackItem::TNum(token.value.unwrap().parse().unwrap())),
+            TokenType::TNumLit => {
+                stack.push(StackItem::TNum(token.value.unwrap().parse().unwrap()))
+            }
             TokenType::TSemi => {
                 while stack.len() > 0 {
                     let item = stack.pop().unwrap();
@@ -182,7 +184,7 @@ pub fn tokens_to_vm(tokens: Vec<Token>) -> Vec<u8> {
                             for byte in bytes {
                                 code.push(byte);
                             }
-                        },
+                        }
                         StackItem::TStr(x) => {
                             code.push(OpCode::OpPush as u8);
                             code.push(0x02);
@@ -191,16 +193,21 @@ pub fn tokens_to_vm(tokens: Vec<Token>) -> Vec<u8> {
                             for byte in bytes {
                                 code.push(*byte);
                             }
-                        },
+                        }
                     }
                 }
-            },
+            }
             TokenType::TPrint => code.push(OpCode::OpPrint as u8),
             TokenType::TAdd => code.push(OpCode::OpAdd as u8),
             TokenType::TSub => code.push(OpCode::OpSub as u8),
             TokenType::TMul => code.push(OpCode::OpMul as u8),
             TokenType::TDiv => code.push(OpCode::OpDiv as u8),
-            _ => todo!("Not implemented")
+            TokenType::TLoop => code.push(OpCode::OpLoop as u8),
+            TokenType::TEnd => code.push(OpCode::OpEnd as u8),
+            TokenType::TDup => code.push(OpCode::OpDup as u8),
+            TokenType::TFlip => code.push(OpCode::OpFlip as u8),
+            TokenType::TPop => code.push(OpCode::OpPop as u8),
+            _ => todo!("Not implemented"),
         }
     }
     code.push(OpCode::OpExit as u8);

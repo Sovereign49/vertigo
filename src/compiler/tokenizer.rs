@@ -1,7 +1,6 @@
 pub enum TokenType {
     TStrLit,
     TNumLit,
-    TAsAscii,
     TPrint,
     TLoop,
     TEnd,
@@ -87,11 +86,6 @@ pub fn tokenize(src: &str) -> Vec<Token> {
                 } else if buf == b"end" {
                     tokens.push(Token {
                         ttype: TokenType::TEnd,
-                        value: None,
-                    });
-                } else if buf == b"ascii" {
-                    tokens.push(Token {
-                        ttype: TokenType::TAsAscii,
                         value: None,
                     });
                 } else if buf == b"dup" {

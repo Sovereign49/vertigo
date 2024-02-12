@@ -8,22 +8,14 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug executable 'vertigo'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=vertigo",
-                    "--package=vertigo"
-                ],
-                "filter": {
-                    "name": "vertigo",
-                    "kind": "bin"
-                }
-            },
+            "program": "${workspaceRoot}/target/debug/vertigo",
             "args": [
-                "test.vt",
-                "test.py"
+                "nested-loop.vte"
             ],
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "sourceLanguages": [
+                "rust"
+            ]
         },
         {
             "type": "lldb",

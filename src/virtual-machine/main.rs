@@ -130,6 +130,8 @@ fn main() {
                 if val != StackItem::TNum(0.0) {
                     i = *loop_stack.last().unwrap();
                     stack.push(val);
+                } else {
+                    let _ = loop_stack.pop().unwrap();
                 }
             }
             OpCode::OpDup => {
